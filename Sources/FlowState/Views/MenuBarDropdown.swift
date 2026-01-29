@@ -7,9 +7,12 @@ struct MenuBarDropdown: View {
     let keystrokesActive: Bool
     let mouseActive: Bool
     let isTinting: Bool
-    let onOpenSettings: () -> Void
+    let shouldSuggestBreak: Bool
+    let onOpenSystemSettings: () -> Void
+    let onOpenAppSettings: () -> Void
     let onTestTint: () -> Void
     let onClearTint: () -> Void
+    let onDismissBreakSuggestion: () -> Void
     let onQuit: () -> Void
 
     var body: some View {
@@ -22,22 +25,38 @@ struct MenuBarDropdown: View {
 
             Divider()
 
-            Button("Quit FlowState") {
-                onQuit()
+            HStack {
+                Button {
+                    onOpenAppSettings()
+                } label: {
+                    Label("Settings", systemImage: "gear")
+                }
+
+                Spacer()
+
+                Button("Quit") {
+                    onQuit()
+                }
             }
         }
         .padding()
-        .frame(width: 220)
+        .frame(width: 240)
     }
 
     private var scoreView: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if shouldSuggestBreak {
+                breakSuggestionView
+                Divider()
+            }
+
             Text("Focus Score")
                 .font(.headline)
 
             HStack {
                 ProgressView(value: Double(focusScore), total: 100)
                     .progressViewStyle(.linear)
+                    .tint(focusScoreColor)
 
                 Text("\(focusScore)")
                     .font(.title2)
@@ -69,6 +88,31 @@ struct MenuBarDropdown: View {
         }
     }
 
+    private var breakSuggestionView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Time for a Break", systemImage: "pause.circle.fill")
+                .font(.headline)
+                .foregroundColor(.orange)
+
+            Text("You've been focused for a while. Consider taking a short break.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            Button("Dismiss") {
+                onDismissBreakSuggestion()
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+
+    private var focusScoreColor: Color {
+        switch focusScore {
+        case 0..<30: return .red
+        case 30..<60: return .orange
+        default: return .green
+        }
+    }
+
     private var tintControlsView: some View {
         HStack(spacing: 12) {
             Button("Test Tint") {
@@ -94,7 +138,7 @@ struct MenuBarDropdown: View {
                 .foregroundColor(.secondary)
 
             Button("Open System Settings") {
-                onOpenSettings()
+                onOpenSystemSettings()
             }
             .buttonStyle(.borderedProminent)
         }
@@ -108,9 +152,29 @@ struct MenuBarDropdown: View {
         keystrokesActive: true,
         mouseActive: false,
         isTinting: false,
-        onOpenSettings: {},
+        shouldSuggestBreak: false,
+        onOpenSystemSettings: {},
+        onOpenAppSettings: {},
         onTestTint: {},
         onClearTint: {},
+        onDismissBreakSuggestion: {},
+        onQuit: {}
+    )
+}
+
+#Preview("Break Suggested") {
+    MenuBarDropdown(
+        focusScore: 45,
+        hasPermission: true,
+        keystrokesActive: false,
+        mouseActive: true,
+        isTinting: false,
+        shouldSuggestBreak: true,
+        onOpenSystemSettings: {},
+        onOpenAppSettings: {},
+        onTestTint: {},
+        onClearTint: {},
+        onDismissBreakSuggestion: {},
         onQuit: {}
     )
 }
@@ -122,9 +186,12 @@ struct MenuBarDropdown: View {
         keystrokesActive: false,
         mouseActive: false,
         isTinting: false,
-        onOpenSettings: {},
+        shouldSuggestBreak: false,
+        onOpenSystemSettings: {},
+        onOpenAppSettings: {},
         onTestTint: {},
         onClearTint: {},
+        onDismissBreakSuggestion: {},
         onQuit: {}
     )
 }

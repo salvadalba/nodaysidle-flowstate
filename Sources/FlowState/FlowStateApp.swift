@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct FlowStateApp: App {
     @State private var appState = AppState()
+    @Environment(\.openSettings) private var openSettings
 
     var body: some Scene {
         MenuBarExtra {
@@ -13,14 +14,21 @@ struct FlowStateApp: App {
                 keystrokesActive: appState.keystrokesActive,
                 mouseActive: appState.mouseActive,
                 isTinting: appState.isTinting,
-                onOpenSettings: {
+                shouldSuggestBreak: appState.shouldSuggestBreak,
+                onOpenSystemSettings: {
                     appState.permissionChecker.openSystemSettings()
+                },
+                onOpenAppSettings: {
+                    openSettings()
                 },
                 onTestTint: {
                     appState.startTint()
                 },
                 onClearTint: {
                     appState.clearTint()
+                },
+                onDismissBreakSuggestion: {
+                    appState.dismissBreakSuggestion()
                 },
                 onQuit: {
                     NSApplication.shared.terminate(nil)
@@ -38,5 +46,9 @@ struct FlowStateApp: App {
             Image(nsImage: appState.menuBarImage)
         }
         .menuBarExtraStyle(.window)
+
+        Settings {
+            SettingsView()
+        }
     }
 }
