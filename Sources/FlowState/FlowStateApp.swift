@@ -6,7 +6,7 @@ struct FlowStateApp: App {
     @State private var appState = AppState()
 
     var body: some Scene {
-        MenuBarExtra("FlowState", systemImage: "brain.head.profile") {
+        MenuBarExtra("FlowState", systemImage: appState.menuBarIcon) {
             MenuBarDropdown(
                 focusScore: appState.focusEngine.currentScore,
                 hasPermission: appState.permissionChecker.hasPermission,
