@@ -1,4 +1,5 @@
 // Sources/FlowState/AppState.swift
+import AppKit
 import Foundation
 import Observation
 
@@ -19,16 +20,8 @@ final class AppState {
     var mouseActive: Bool { lastMouseDistance > 50 }
     var isTinting: Bool { tintController.isTinting }
 
-    var menuBarIcon: String {
-        let score = focusEngine.currentScore
-        switch score {
-        case 0...33:
-            return "circle"
-        case 34...66:
-            return "circle.bottomhalf.filled"
-        default:
-            return "circle.fill"
-        }
+    var menuBarImage: NSImage {
+        MenuBarIconRenderer.render(score: focusEngine.currentScore)
     }
 
     func startTint() {

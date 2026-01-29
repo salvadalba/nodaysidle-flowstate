@@ -6,7 +6,7 @@ struct FlowStateApp: App {
     @State private var appState = AppState()
 
     var body: some Scene {
-        MenuBarExtra("FlowState", systemImage: appState.menuBarIcon) {
+        MenuBarExtra {
             MenuBarDropdown(
                 focusScore: appState.focusEngine.currentScore,
                 hasPermission: appState.permissionChecker.hasPermission,
@@ -34,6 +34,8 @@ struct FlowStateApp: App {
             .task {
                 appState.start()
             }
+        } label: {
+            Image(nsImage: appState.menuBarImage)
         }
         .menuBarExtraStyle(.window)
     }
