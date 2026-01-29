@@ -6,7 +6,10 @@ struct MenuBarDropdown: View {
     let hasPermission: Bool
     let keystrokesActive: Bool
     let mouseActive: Bool
+    let isTinting: Bool
     let onOpenSettings: () -> Void
+    let onTestTint: () -> Void
+    let onClearTint: () -> Void
     let onQuit: () -> Void
 
     var body: some View {
@@ -57,7 +60,28 @@ struct MenuBarDropdown: View {
                 .foregroundColor(mouseActive ? .orange : .secondary)
             }
             .font(.caption)
+
+            Divider()
+
+            tintControlsView
+
+            Divider()
         }
+    }
+
+    private var tintControlsView: some View {
+        HStack(spacing: 12) {
+            Button("Test Tint") {
+                onTestTint()
+            }
+            .disabled(isTinting)
+
+            Button("Clear Tint") {
+                onClearTint()
+            }
+            .disabled(!isTinting)
+        }
+        .buttonStyle(.bordered)
     }
 
     private var permissionRequestView: some View {
@@ -83,7 +107,10 @@ struct MenuBarDropdown: View {
         hasPermission: true,
         keystrokesActive: true,
         mouseActive: false,
+        isTinting: false,
         onOpenSettings: {},
+        onTestTint: {},
+        onClearTint: {},
         onQuit: {}
     )
 }
@@ -94,7 +121,10 @@ struct MenuBarDropdown: View {
         hasPermission: false,
         keystrokesActive: false,
         mouseActive: false,
+        isTinting: false,
         onOpenSettings: {},
+        onTestTint: {},
+        onClearTint: {},
         onQuit: {}
     )
 }

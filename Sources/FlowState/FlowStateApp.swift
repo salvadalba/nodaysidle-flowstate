@@ -12,8 +12,15 @@ struct FlowStateApp: App {
                 hasPermission: appState.permissionChecker.hasPermission,
                 keystrokesActive: appState.keystrokesActive,
                 mouseActive: appState.mouseActive,
+                isTinting: appState.isTinting,
                 onOpenSettings: {
                     appState.permissionChecker.openSystemSettings()
+                },
+                onTestTint: {
+                    appState.startTint()
+                },
+                onClearTint: {
+                    appState.clearTint()
                 },
                 onQuit: {
                     NSApplication.shared.terminate(nil)
