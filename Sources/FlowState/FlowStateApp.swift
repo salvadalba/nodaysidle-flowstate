@@ -48,7 +48,7 @@ struct FlowStateApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView()
+            SettingsView(dataStore: appState.dataStore)
         }
     }
 }

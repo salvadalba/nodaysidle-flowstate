@@ -3,6 +3,8 @@ import SwiftUI
 import ServiceManagement
 
 struct SettingsView: View {
+    let dataStore: ActivityDataStore
+
     var body: some View {
         TabView {
             FocusSettingsTab()
@@ -20,12 +22,17 @@ struct SettingsView: View {
                     Label("Breaks", systemImage: "pause.circle")
                 }
 
+            HistoryView(dataStore: dataStore)
+                .tabItem {
+                    Label("History", systemImage: "chart.bar.xaxis")
+                }
+
             GeneralSettingsTab()
                 .tabItem {
                     Label("General", systemImage: "gear")
                 }
         }
-        .frame(width: 450, height: 300)
+        .frame(width: 500, height: 400)
     }
 }
 
@@ -215,5 +222,5 @@ struct GeneralSettingsTab: View {
 }
 
 #Preview {
-    SettingsView()
+    SettingsView(dataStore: ActivityDataStore())
 }

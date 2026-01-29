@@ -100,6 +100,49 @@ actor ActivityDataStore {
         sessions
     }
 
+    func getSessions(from startDate: Date, to endDate: Date) -> [SessionRecord] {
+        sessions.filter { $0.startTime >= startDate && $0.startTime <= endDate }
+    }
+
+    func getSessionsToday() -> [SessionRecord] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        return sessions.filter { $0.startTime >= startOfDay }
+    }
+
+    func getSessionsThisWeek() -> [SessionRecord] {
+        let calendar = Calendar.current
+        guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) else {
+            return []
+        }
+        return sessions.filter { $0.startTime >= weekStart }
+    }
+
+    func getDailyFocusTime(days: Int) -> [(date: Date, focusMinutes: Double)] {
+        let calendar = Calendar.current
+        var result: [(date: Date, focusMinutes: Double)] = []
+
+        for dayOffset in (0..<days).reversed() {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
+            let startOfDay = calendar.startOfDay(for: date)
+            guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { continue }
+
+            let daySessions = sessions.filter { $0.startTime >= startOfDay && $0.startTime < endOfDay }
+            let totalMinutes = daySessions.reduce(0.0) { $0 + $1.duration / 60.0 }
+
+            result.append((date: startOfDay, focusMinutes: totalMinutes))
+        }
+
+        return result
+    }
+
+    func getTotalStats() -> (sessions: Int, totalMinutes: Double, avgScore: Double) {
+        let totalSessions = sessions.count
+        let totalMinutes = sessions.reduce(0.0) { $0 + $1.duration / 60.0 }
+        let avgScore = sessions.isEmpty ? 0 : sessions.reduce(0.0) { $0 + $1.averageFocusScore } / Double(sessions.count)
+        return (sessions: totalSessions, totalMinutes: totalMinutes, avgScore: avgScore)
+    }
+
     func saveData() {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
