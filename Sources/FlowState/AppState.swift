@@ -11,6 +11,9 @@ final class AppState {
     let activityMonitor = ActivityMonitorService()
     let tintController = ScreenTintController()
     let idleDetector = IdleDetector()
+    let dataStore = ActivityDataStore()
+    private(set) var sessionTracker: SessionTracker!
+    private(set) var breakPredictor: BreakPredictor!
 
     private(set) var lastKeystrokeCount: Int = 0
     private(set) var lastMouseDistance: Double = 0
@@ -19,9 +22,18 @@ final class AppState {
     var keystrokesActive: Bool { lastKeystrokeCount > 0 }
     var mouseActive: Bool { lastMouseDistance > 50 }
     var isTinting: Bool { tintController.isTinting }
+    var shouldSuggestBreak: Bool { breakPredictor?.shouldSuggestBreak ?? false }
 
     var menuBarImage: NSImage {
-        MenuBarIconRenderer.render(score: focusEngine.currentScore)
+        if shouldSuggestBreak {
+            return MenuBarIconRenderer.renderBreakSuggestion()
+        }
+        return MenuBarIconRenderer.render(score: focusEngine.currentScore)
+    }
+
+    init() {
+        sessionTracker = SessionTracker(dataStore: dataStore)
+        breakPredictor = BreakPredictor(dataStore: dataStore)
     }
 
     func startTint() {
@@ -40,9 +52,17 @@ final class AppState {
         // Wire idle detector callbacks
         idleDetector.onIdleStart = { [weak self] in
             self?.tintController.show()
+            // End session when user goes idle
+            let followed = self?.breakPredictor.shouldSuggestBreak ?? false
+            self?.sessionTracker.endSession(suggestionFollowed: followed ? true : nil)
         }
         idleDetector.onIdleEnd = { [weak self] in
             self?.tintController.hide()
+        }
+
+        // Wire break predictor callback
+        breakPredictor.onBreakSuggested = { [weak self] in
+            self?.sessionTracker.markBreakSuggested()
         }
 
         permissionChecker.startPolling()
@@ -73,7 +93,26 @@ final class AppState {
         lastMouseDistance = sample.mouseDistance
         focusEngine.processSample(sample)
 
+        let score = focusEngine.currentScore
+
         // Notify idle detector of score change
-        idleDetector.update(score: focusEngine.currentScore)
+        idleDetector.update(score: score)
+
+        // Update session tracker
+        sessionTracker.update(score: score, sample: sample)
+
+        // Update break predictor if in session
+        if sessionTracker.isInSession {
+            breakPredictor.update(
+                sessionDuration: sessionTracker.currentSessionDuration,
+                averageScore: sessionTracker.currentSessionAverageScore,
+                trend: 0  // Trend calculated internally by session tracker
+            )
+        }
+    }
+
+    func dismissBreakSuggestion() {
+        breakPredictor.dismissSuggestion()
+        breakPredictor.recordOutcome(followed: false)
     }
 }
