@@ -8,6 +8,7 @@ final class AppState {
     let focusEngine = FocusScoreEngine()
     let permissionChecker = AccessibilityPermissionChecker()
     let activityMonitor = ActivityMonitorService()
+    let tintController = ScreenTintController()
 
     private(set) var lastKeystrokeCount: Int = 0
     private(set) var lastMouseDistance: Double = 0
@@ -15,6 +16,15 @@ final class AppState {
 
     var keystrokesActive: Bool { lastKeystrokeCount > 0 }
     var mouseActive: Bool { lastMouseDistance > 50 }
+    var isTinting: Bool { tintController.isTinting }
+
+    func startTint() {
+        tintController.show()
+    }
+
+    func clearTint() {
+        tintController.hide()
+    }
 
     func start() {
         guard !hasStarted else { return }
