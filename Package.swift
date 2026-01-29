@@ -10,6 +10,10 @@ let package = Package(
         .executableTarget(
             name: "FlowState",
             exclude: ["Info.plist"]
+        ),
+        .testTarget(
+            name: "FlowStateTests",
+            dependencies: ["FlowState"]
         )
     ]
 )
