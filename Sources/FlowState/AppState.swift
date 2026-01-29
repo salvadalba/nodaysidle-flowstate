@@ -19,6 +19,18 @@ final class AppState {
     var mouseActive: Bool { lastMouseDistance > 50 }
     var isTinting: Bool { tintController.isTinting }
 
+    var menuBarIcon: String {
+        let score = focusEngine.currentScore
+        switch score {
+        case 0...33:
+            return "circle"
+        case 34...66:
+            return "circle.bottomhalf.filled"
+        default:
+            return "circle.fill"
+        }
+    }
+
     func startTint() {
         tintController.show()
     }
