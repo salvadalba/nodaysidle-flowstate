@@ -1,5 +1,6 @@
 // Sources/FlowState/Services/ScreenTintController.swift
 import Cocoa
+import SwiftUI
 
 @MainActor
 @Observable
@@ -7,7 +8,11 @@ final class ScreenTintController {
     private var overlays: [ScreenTintOverlay] = []
     private(set) var isTinting: Bool = false
 
-    private let animationDuration: TimeInterval = 30.0
+    @ObservationIgnored
+    @AppStorage("tintAnimationDuration") private var animationDuration: Double = 30.0
+
+    @ObservationIgnored
+    @AppStorage("tintIntensity") private var tintIntensity: Double = 0.6
 
     func show() {
         guard !isTinting else { return }
@@ -18,7 +23,7 @@ final class ScreenTintController {
         for screen in NSScreen.screens {
             let overlay = ScreenTintOverlay(for: screen)
             overlay.orderFrontRegardless()
-            overlay.animateDesaturation(duration: animationDuration)
+            overlay.animateDesaturation(duration: animationDuration, intensity: Float(tintIntensity))
             overlays.append(overlay)
         }
     }

@@ -39,7 +39,7 @@ final class ScreenTintOverlay: NSPanel {
         overlayView.layer?.opacity = 0
     }
 
-    func animateDesaturation(duration: TimeInterval) {
+    func animateDesaturation(duration: TimeInterval, intensity: Float) {
         guard let layer = overlayView.layer else { return }
 
         // Set model value first
@@ -51,7 +51,7 @@ final class ScreenTintOverlay: NSPanel {
         // Then animate
         let animation = CABasicAnimation(keyPath: "opacity")
         animation.fromValue = 0.0
-        animation.toValue = 0.6
+        animation.toValue = intensity
         animation.duration = duration
         animation.timingFunction = CAMediaTimingFunction(name: .easeIn)
         animation.fillMode = .forwards

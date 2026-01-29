@@ -1,5 +1,6 @@
 // Sources/FlowState/Services/BreakPredictor.swift
 import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -12,16 +13,28 @@ final class BreakPredictor {
     private var lastPredictionTime: Date?
     private let predictionInterval: TimeInterval = 60  // Check every minute
 
+    @ObservationIgnored
+    @AppStorage("breakPredictionEnabled") private var isEnabled: Bool = true
+
+    @ObservationIgnored
+    @AppStorage("defaultSessionLength") private var defaultSessionLength: Double = 50.0
+
     var onBreakSuggested: (() -> Void)?
 
     init(dataStore: ActivityDataStore) {
         self.dataStore = dataStore
+        predictedOptimalDuration = defaultSessionLength * 60
         Task {
             await updateOptimalDuration()
         }
     }
 
     func update(sessionDuration: TimeInterval, averageScore: Double, trend: Double) {
+        guard isEnabled else {
+            shouldSuggestBreak = false
+            return
+        }
+
         let now = Date()
 
         // Only predict every minute

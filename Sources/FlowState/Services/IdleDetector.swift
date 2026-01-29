@@ -1,12 +1,18 @@
 // Sources/FlowState/Services/IdleDetector.swift
 import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
 final class IdleDetector {
-    private let lowThreshold: Int = 30
-    private let idleTriggerDuration: TimeInterval = 10.0
-    private let recoveryDuration: TimeInterval = 5.0
+    @ObservationIgnored
+    @AppStorage("idleThreshold") private var lowThreshold: Int = 30
+
+    @ObservationIgnored
+    @AppStorage("idleTriggerDuration") private var idleTriggerDuration: Double = 10.0
+
+    @ObservationIgnored
+    @AppStorage("recoveryDuration") private var recoveryDuration: Double = 5.0
 
     private var belowThresholdSince: Date?
     private var aboveThresholdSince: Date?
