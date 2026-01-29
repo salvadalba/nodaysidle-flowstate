@@ -4,7 +4,7 @@ import Cocoa
 @MainActor
 @Observable
 final class ScreenTintController {
-    private var overlay: ScreenTintOverlay?
+    private var overlays: [ScreenTintOverlay] = []
     private(set) var isTinting: Bool = false
 
     private let animationDuration: TimeInterval = 30.0
@@ -14,20 +14,23 @@ final class ScreenTintController {
 
         isTinting = true
 
-        // Create and show overlay
-        let newOverlay = ScreenTintOverlay()
-        newOverlay.orderFrontRegardless()
-        newOverlay.animateDesaturation(duration: animationDuration)
-
-        overlay = newOverlay
+        // Create overlay for each screen
+        for screen in NSScreen.screens {
+            let overlay = ScreenTintOverlay(for: screen)
+            overlay.orderFrontRegardless()
+            overlay.animateDesaturation(duration: animationDuration)
+            overlays.append(overlay)
+        }
     }
 
     func hide() {
         guard isTinting else { return }
 
-        overlay?.clearTint()
-        overlay?.orderOut(nil)
-        overlay = nil
+        for overlay in overlays {
+            overlay.clearTint()
+            overlay.orderOut(nil)
+        }
+        overlays.removeAll()
 
         isTinting = false
     }
