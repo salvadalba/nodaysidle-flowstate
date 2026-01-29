@@ -47,4 +47,51 @@ enum MenuBarIconRenderer {
         image.isTemplate = false
         return image
     }
+
+    static func renderBreakSuggestion() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let image = NSImage(size: size, flipped: false) { rect in
+            let inset: CGFloat = 1.5
+            let circleRect = rect.insetBy(dx: inset, dy: inset)
+
+            // Draw filled circle background
+            let circlePath = NSBezierPath(ovalIn: circleRect)
+            NSColor.white.withAlphaComponent(0.3).setFill()
+            circlePath.fill()
+
+            // Draw outline
+            circlePath.lineWidth = 1.5
+            NSColor.white.withAlphaComponent(0.8).setStroke()
+            circlePath.stroke()
+
+            // Draw pause icon in center
+            let pauseWidth: CGFloat = 2.0
+            let pauseHeight: CGFloat = 8.0
+            let pauseGap: CGFloat = 3.0
+            let centerX = rect.midX
+            let centerY = rect.midY
+
+            let leftBar = NSRect(
+                x: centerX - pauseGap / 2 - pauseWidth,
+                y: centerY - pauseHeight / 2,
+                width: pauseWidth,
+                height: pauseHeight
+            )
+            let rightBar = NSRect(
+                x: centerX + pauseGap / 2,
+                y: centerY - pauseHeight / 2,
+                width: pauseWidth,
+                height: pauseHeight
+            )
+
+            NSColor.white.setFill()
+            NSBezierPath(roundedRect: leftBar, xRadius: 0.5, yRadius: 0.5).fill()
+            NSBezierPath(roundedRect: rightBar, xRadius: 0.5, yRadius: 0.5).fill()
+
+            return true
+        }
+
+        image.isTemplate = false
+        return image
+    }
 }
