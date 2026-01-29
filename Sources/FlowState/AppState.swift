@@ -9,6 +9,7 @@ final class AppState {
     let permissionChecker = AccessibilityPermissionChecker()
     let activityMonitor = ActivityMonitorService()
     let tintController = ScreenTintController()
+    let idleDetector = IdleDetector()
 
     private(set) var lastKeystrokeCount: Int = 0
     private(set) var lastMouseDistance: Double = 0
@@ -24,11 +25,20 @@ final class AppState {
 
     func clearTint() {
         tintController.hide()
+        idleDetector.reset()  // Prevent immediate re-trigger
     }
 
     func start() {
         guard !hasStarted else { return }
         hasStarted = true
+
+        // Wire idle detector callbacks
+        idleDetector.onIdleStart = { [weak self] in
+            self?.tintController.show()
+        }
+        idleDetector.onIdleEnd = { [weak self] in
+            self?.tintController.hide()
+        }
 
         permissionChecker.startPolling()
 
@@ -57,5 +67,8 @@ final class AppState {
         lastKeystrokeCount = sample.keystrokes
         lastMouseDistance = sample.mouseDistance
         focusEngine.processSample(sample)
+
+        // Notify idle detector of score change
+        idleDetector.update(score: focusEngine.currentScore)
     }
 }
